@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../core/network/api_constants.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/core/error/exceptions.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/data/models/medicamento_model.dart';
 
@@ -16,7 +17,7 @@ class MedicamentoRemoteDataSourceImpl implements MedicamentoRemoteDataSource {
   Future<List<MedicamentoModel>> getMedicamentos(String query) async {
     // URL DA API
     final response = await client.get(
-      Uri.parse('https://sua-api.com/medicamentos?search=$query'),
+      Uri.parse('${ApiConstants.baseUrl}/medicamentos?search=$query'),
       headers: {'Content-Type': 'application/json'},
     );
 

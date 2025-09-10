@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/presentation/provider/medicamentos_provider.dart';
+import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 class MedicamentosPage extends StatelessWidget {
@@ -7,9 +8,24 @@ class MedicamentosPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Para obter o nome do usuário
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userName = authProvider.currentUser?.displayName ?? 'Usuário';
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Consultar Medicamentos'),
+        title: Text('Olá, $userName'),
+        actions: [
+          // Botão de Logout
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () {
+              // Chama a função de logout
+              context.read<AuthProvider>().signOut();
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

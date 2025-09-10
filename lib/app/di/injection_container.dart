@@ -5,6 +5,8 @@ import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medic
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/domain/repositories/medicamento_repository.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/domain/usecases/get_medicamentos.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/presentation/provider/medicamentos_provider.dart';
+import 'package:preco_maximo_consumidor_medicamentos_app/features/auth/data/datasources/google_sign_in_data_source.dart';
+import 'package:preco_maximo_consumidor_medicamentos_app/features/auth/presentation/providers/auth_provider.dart';
 
 // Instância do Service Locator
 final sl = GetIt.instance;
@@ -33,6 +35,10 @@ Future<void> init() async {
   sl.registerLazySingleton<MedicamentoRemoteDataSource>(
         () => MedicamentoRemoteDataSourceImpl(client: sl()),
   );
+
+  // Auth Feature
+  sl.registerFactory(() => AuthProvider(sl()));
+  sl.registerLazySingleton<GoogleSignInDataSource>(() => GoogleSignInDataSourceImpl());
 
   // ############################################
   // # Externals
