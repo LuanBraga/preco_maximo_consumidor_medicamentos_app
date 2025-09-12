@@ -3,27 +3,44 @@ import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medic
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
-class MedicamentosPage extends StatelessWidget {
+class MedicamentosPage extends StatefulWidget {
   const MedicamentosPage({super.key});
 
   @override
+  State<MedicamentosPage> createState() => _MedicamentosPageState();
+}
+
+class _MedicamentosPageState extends State<MedicamentosPage> {
+  final _textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<MedicamentosProvider>();
+    _textController.addListener(() {
+      provider.onSearchChanged(_textController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Para obter o nome do usuário
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = context.read<AuthProvider>();
     final userName = authProvider.currentUser?.displayName ?? 'Usuário';
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Olá, $userName'),
         actions: [
-          // Botão de Logout
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sair',
-            onPressed: () {
-              // Chama a função de logout
-              context.read<AuthProvider>().signOut();
-            },
+            onPressed: () => authProvider.signOut(),
           ),
         ],
       ),
@@ -32,46 +49,62 @@ class MedicamentosPage extends StatelessWidget {
         child: Column(
           children: [
             TextField(
-              onSubmitted: (value) {
-                // Chama o provider para buscar os dados
-                Provider.of<MedicamentosProvider>(context, listen: false)
-                    .fetchMedicamentos(value);
-              },
-              decoration: const InputDecoration(
+              controller: _textController,
+              decoration: InputDecoration(
                 labelText: 'Digite o nome do medicamento',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.search),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _textController.clear();
+                    context.read<MedicamentosProvider>().clearSuggestions();
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 20),
             Expanded(
               child: Consumer<MedicamentosProvider>(
                 builder: (context, provider, child) {
-                  switch (provider.state) {
-                    case ViewState.loading:
+                  switch (provider.suggestionState) {
+                    case SuggestionState.loading:
                       return const Center(child: CircularProgressIndicator());
-                    case ViewState.error:
-                      return Center(child: Text(provider.errorMessage));
-                    case ViewState.loaded:
+                    case SuggestionState.error:
+                      return Center(child: Text(provider.suggestionErrorMessage));
+                    case SuggestionState.loaded:
+                      if (provider.suggestions.isEmpty) {
+                        return const Center(child: Text('Nenhum medicamento encontrado.'));
+                      }
                       return ListView.builder(
-                        itemCount: provider.medicamentos.length,
+                        itemCount: provider.suggestions.length,
                         itemBuilder: (context, index) {
-                          final medicamento = provider.medicamentos[index];
+                          final suggestion = provider.suggestions[index];
                           return Card(
                             child: ListTile(
-                              title: Text(medicamento.nome),
-                              subtitle: Text(medicamento.apresentacao),
-                              trailing: Text(
-                                'R\$ ${medicamento.precoMaximo.toStringAsFixed(2)}',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              title: Text(suggestion.produto),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Princípio Ativo: ${suggestion.principioAtivo}"),
+                                  Text("Laboratório: ${suggestion.laboratorio}"),
+                                  Text(suggestion.apresentacao),
+                                ],
                               ),
+                              onTap: () {
+                                // Ação de clique pode ser definida aqui, como navegar para uma tela de detalhes.
+                                // Por enquanto, apenas preenche o campo de texto.
+                                _textController.text = suggestion.produto;
+                                _textController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: _textController.text.length),
+                                );
+                              },
                             ),
                           );
                         },
                       );
-                    case ViewState.initial:
+                    case SuggestionState.initial:
                     default:
-                      return const Center(child: Text('Digite um medicamento para iniciar a busca.'));
+                      return const Center(child: Text('Digite 3 ou mais letras para buscar.'));
                   }
                 },
               ),
