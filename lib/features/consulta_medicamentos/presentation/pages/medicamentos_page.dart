@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:preco_maximo_consumidor_medicamentos_app/features/consulta_medicamentos/presentation/provider/medicamentos_provider.dart';
-import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 class MedicamentosPage extends StatefulWidget {
@@ -30,19 +29,9 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.read<AuthProvider>();
-    final userName = authProvider.currentUser?.displayName ?? 'Usuário';
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Olá, $userName'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
-            onPressed: () => authProvider.signOut(),
-          ),
-        ],
+        title: const Text('Consulta Medicamentos'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

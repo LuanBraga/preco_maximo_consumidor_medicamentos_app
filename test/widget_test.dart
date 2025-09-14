@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:preco_maximo_consumidor_medicamentos_app/main.dart';
+import 'package:preco_maximo_consumidor_medicamentos_app/app/my_app.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
